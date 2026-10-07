@@ -1,0 +1,28 @@
+name: InputShield Studionet Proof
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "contracts/**"
+      - "fixtures/**"
+      - "tests/integration/**"
+      - ".github/workflows/inputshield-studionet.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: inputshield-studionet
+  cancel-in-progress: false
+
+jobs:
+  deploy-and-verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Deploy and exercise InputShield on Studionet
+        run: gltest tests/integration/test_inputshield_studionet.py -v -s --network studionet
