@@ -67,14 +67,14 @@ class InputShield(gl.Contract):
         risk_score = max(0, min(100, int(risk_score)))
         confidence = max(0, min(100, int(confidence)))
 
+        # Requests for secrets, tools, transactions, credentials, or other
+        # privileged actions fail closed regardless of score or confidence.
+        if high_impact:
+            return "BLOCK"
+
         # Low-confidence scans can never become ALLOW.
         if confidence < 60:
             return "REVIEW"
-
-        # Requests for secrets, tools, transactions, credentials, or other
-        # privileged actions fail closed regardless of score.
-        if high_impact:
-            return "BLOCK"
 
         if risk_score >= 70:
             return "BLOCK"
