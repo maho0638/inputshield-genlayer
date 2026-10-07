@@ -263,20 +263,20 @@ Definitions:
         if len(source_url) > MAX_URL:
             raise gl.vm.UserError("URL too long")
 
-        def classify_page() -> dict:
+        def leader_fn() -> dict:
             page_text = str(
                 gl.nondet.web.render(source_url, mode="text")
             )[:MAX_EVIDENCE_CHARS]
             return self._prompt_classification(page_text)
 
-        def leader_fn() -> dict:
-            return classify_page()
-
         def validator_fn(leader_result) -> bool:
             if not isinstance(leader_result, gl.vm.Return):
                 return False
             try:
-                check = classify_page()
+                page_text = str(
+                    gl.nondet.web.render(source_url, mode="text")
+                )[:MAX_EVIDENCE_CHARS]
+                check = self._prompt_classification(page_text)
                 return self._validator_accepts(leader_result.calldata, check)
             except Exception:
                 return False
