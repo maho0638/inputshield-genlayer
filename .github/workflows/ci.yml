@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: inputshield-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Direct tests
+        run: pytest tests/direct -v
+      - name: GenVM lint
+        run: genvm-lint check contracts/input_shield.py
+      - name: Integration syntax
+        run: python -m py_compile tests/integration/test_inputshield_studionet.py
