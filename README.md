@@ -91,6 +91,21 @@ It is **not** a malware scanner, URL reputation service, antivirus product, phis
 
 See [SECURITY.md](SECURITY.md) for scope and limitations.
 
+## Live Studionet proof
+
+Verified on commit `c0183412e94e0d133e41ce3b045864d0ddb3640d`.
+
+- Contract: `0xc2d1A30CDA9ad1688a3739dB72C60cEe55FDBb87`
+- Explorer: https://explorer-studio.genlayer.com/address/0xc2d1A30CDA9ad1688a3739dB72C60cEe55FDBb87
+- Benign scan tx: https://explorer-studio.genlayer.com/tx/0xb476004ed7ee5ad6ad9e881b9fb5bc0088d9f60784eab29b9dab4de05a401dc2
+- Benign result: `ALLOW`, risk score `0`, confidence `98`
+- Injection scan tx: https://explorer-studio.genlayer.com/tx/0x2c4397c533377bebad67ecf6d091c6d68cbbdc5dd80c0577251a61e4a59d98d8
+- Injection result: `BLOCK`, high-impact `1`, risk score `95`
+- CI: https://github.com/maho0638/inputshield-genlayer/actions/runs/37694677972
+- Studionet proof: https://github.com/maho0638/inputshield-genlayer/actions/runs/37694678128
+- Direct tests: **14 / 14 PASS**
+- GenVM lint: **PASS**
+
 ## Verification
 
 Direct tests cover:
