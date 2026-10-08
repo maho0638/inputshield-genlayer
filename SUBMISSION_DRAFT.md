@@ -1,49 +1,38 @@
 # Portal Submission Draft
 
 ## Category
-
 Developer -> Intelligent Contracts
 
 ## Title
-
 InputShield — Consensus Prompt-Injection Firewall for GenLayer
 
-## Notes / description
-
-InputShield is a reusable GenLayer Intelligent Contract security primitive that screens untrusted text and public web content before downstream contracts or agents rely on it. It detects prompt-injection and agent-control attempts such as instruction overrides, role impersonation, secret extraction, tool execution, wallet signing, value transfer, and contract-mutation requests. Validators independently re-run the security classification and must agree on the deterministic ALLOW / REVIEW / BLOCK outcome. Numeric drift is accepted only when it preserves the same final action, preventing threshold-crossing consensus bugs. High-impact and malformed outputs fail closed. Scans are bound to SHA-256 evidence hashes, ALLOW results expire after one hour, URL retrieval failures fail closed to REVIEW, and untrusted content is JSON-encoded before prompt insertion to prevent delimiter breakout. Verification: 17/17 direct tests PASS, GenVM lint PASS, and live Studionet proof PASS. Live benign content resolved ALLOW (score 0, confidence 99); explicit injection resolved BLOCK (high-impact 1, score 99).
+## Notes / Description (935/1000)
+InputShield is a reusable GenLayer Intelligent Contract that protects downstream agents and contracts from prompt injection embedded in untrusted text and live HTTPS pages. Validators independently fetch and classify evidence and require agreement on the exact evidence hash and deterministic final ALLOW/REVIEW/BLOCK action; nearby scores cannot cross an enforcement threshold. High-impact secret, tool and wallet requests are BLOCKED, malformed outputs fail closed, and unavailable sources require REVIEW. Each scan stores a SHA-256 evidence hash and expires after one hour; expired results cannot return ALLOW through any action API. Live Studionet proof: benign content ALLOW, adversarial injection BLOCK, with independent validator agreement. Verification: 19/19 direct tests PASS, GenVM lint PASS, and live Studionet deployment/execution PASS. Includes contract source, adversarial regressions, security model and reviewer guide.
 
 ## Evidence
 
 - GitHub Repository:
   https://github.com/maho0638/inputshield-genlayer
 - Immutable contract source:
-  https://github.com/maho0638/inputshield-genlayer/blob/aee50fcdb19f4e24af5c23fbcea1f14de313b1a6/contracts/input_shield.py
+  https://github.com/maho0638/inputshield-genlayer/blob/126305282f53c3d629a7d4679095ee0845f41804/contracts/input_shield.py
 - Immutable direct tests:
-  https://github.com/maho0638/inputshield-genlayer/blob/aee50fcdb19f4e24af5c23fbcea1f14de313b1a6/tests/direct/test_input_shield.py
+  https://github.com/maho0638/inputshield-genlayer/blob/126305282f53c3d629a7d4679095ee0845f41804/tests/direct/test_input_shield.py
 - Reviewer guide:
-  https://github.com/maho0638/inputshield-genlayer/blob/aee50fcdb19f4e24af5c23fbcea1f14de313b1a6/docs/REVIEWER_GUIDE.md
+  https://github.com/maho0638/inputshield-genlayer/blob/main/docs/REVIEWER_GUIDE.md
 - CI run:
-  https://github.com/maho0638/inputshield-genlayer/actions/runs/37728828887
+  https://github.com/maho0638/inputshield-genlayer/actions/runs/37730228366
 - Studionet proof run:
-  https://github.com/maho0638/inputshield-genlayer/actions/runs/37728828915
+  https://github.com/maho0638/inputshield-genlayer/actions/runs/37730228386
 - Explorer contract:
-  https://explorer-studio.genlayer.com/address/0xEe0c544Dc9a1657740bAaeD9705c920ad0A62e93
+  https://explorer-studio.genlayer.com/address/0x2450bd6D294C9DE72ec2CA6f924C15fca7f9A116
 - Benign ALLOW transaction:
-  https://explorer-studio.genlayer.com/tx/0x850a8f1b6170aa112546e8bc5755784bea8494a604ae73f2c007300d8675adfe
+  https://explorer-studio.genlayer.com/tx/0x462040fdefeb25d265090259a8d69119887c015f834786b27bdf2230d37574fd
 - Injection BLOCK transaction:
-  https://explorer-studio.genlayer.com/tx/0xa8154f152e06059d06601f439990253df7f59a5704f733e71d41b6af555be22d
+  https://explorer-studio.genlayer.com/tx/0xb25a1694301389f4374591c98eaaca81447eb5665da29413e74577176260a07a
 
 ## Status
-
 READY FOR PORTAL SUBMISSION
 
-Verified release:
-- source commit: `aee50fcdb19f4e24af5c23fbcea1f14de313b1a6`
-- 17/17 direct tests PASS
-- GenVM lint PASS
-- Studionet live proof PASS
-- benign => ALLOW
-- explicit injection => BLOCK
-- evidence hash binding => PASS
-- stale ALLOW expiry => implemented
-- retrieval failure => REVIEW
+Verified code commit: 126305282f53c3d629a7d4679095ee0845f41804
+19/19 direct tests PASS; GenVM lint PASS; integration syntax PASS
+Studionet live proof PASS: benign ALLOW score 0 confidence 98; injection BLOCK score 100 high-impact 1
