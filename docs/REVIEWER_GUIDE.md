@@ -14,7 +14,9 @@
    - numeric drift is accepted only when the final action remains unchanged;
    - tampered leader action fields are rejected;
    - evidence hashes and one-hour expiry metadata are stored;
-   - source-unavailable results fail closed to REVIEW.
+   - source-unavailable results fail closed to REVIEW;
+   - validators reject diverging web evidence hashes, even if the verdict matches;
+   - every decision API rejects stale ALLOW results.
 
 3. `tests/integration/test_inputshield_studionet.py`
    - deploys the contract;
@@ -35,4 +37,4 @@ The security question is semantic, not mechanically decidable from bytes. The co
 
 ## Reuse pattern
 
-A downstream product can scan a source, read `get_action(scan_id)`, and only continue an automated workflow when it returns `ALLOW`. `REVIEW` can route to a human or additional verification; `BLOCK` should stop the automated path.
+A downstream product can scan a source, read expiry-aware `get_action(scan_id)` or `is_allowed(scan_id)`, and only continue an automated workflow when it returns `ALLOW` or true. Historical `get_scan` records retain original classifications for audit. `REVIEW` can route to a human or additional verification; `BLOCK` should stop the automated path.
