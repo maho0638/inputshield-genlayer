@@ -38,6 +38,7 @@ def test_safe_text_is_allowed(direct_vm, direct_deploy, direct_alice):
     assert int(result.expires_at) - int(result.scanned_at) == 3600
     assert c.is_allowed("safe-1") is True
     assert c.get_effective_action("safe-1") == "ALLOW"
+    assert c.get_action("safe-1") == "ALLOW"
 
 
 def test_high_impact_secret_request_is_blocked(direct_vm, direct_deploy, direct_alice):
@@ -307,3 +308,34 @@ def test_validator_rejects_tampered_leader_action(direct_vm, direct_deploy, dire
 def test_high_impact_blocks_even_at_zero_confidence(direct_vm, direct_deploy):
     c = direct_deploy("contracts/input_shield.py")
     assert c._derive_action(True, True, 0, 0) == "BLOCK"
+
+
+def test_expired_allow_never_leaks_through_any_decision_api(direct_vm, direct_deploy):
+    c = direct_deploy("contracts/input_shield.py")
+    expires_at = 1_000_000
+    assert c._current_action("ALLOW", expires_at, expires_at) == "ALLOW"
+    assert c._current_action("ALLOW", expires_at, expires_at + 1) == "REVIEW"
+    assert c._current_action("BLOCK", expires_at, expires_at + 1) == "REVIEW"
+
+
+def test_validator_rejects_different_web_evidence_hashes(direct_vm, direct_deploy):
+    c = direct_deploy("contracts/input_shield.py")
+    leader = {
+        "action": "ALLOW",
+        "suspicious": False,
+        "high_impact": False,
+        "risk_score": 3,
+        "confidence": 98,
+        "evidence_hash": "a" * 64,
+    }
+    check = {
+        "action": "ALLOW",
+        "suspicious": False,
+        "high_impact": False,
+        "risk_score": 4,
+        "confidence": 95,
+        "evidence_hash": "b" * 64,
+    }
+    assert c._validator_accepts(leader, check) is False
+    check["evidence_hash"] = leader["evidence_hash"]
+    assert c._validator_accepts(leader, check) is True
