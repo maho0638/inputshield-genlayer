@@ -39,9 +39,9 @@ Scores may drift only while remaining inside the same action bucket. A 69/71 spl
 
 ## Evidence binding and freshness
 
-Each scan stores an SHA-256 evidence hash. Text scans bind directly to the exact submitted text. URL scans store the leader's rendered-text hash as audit provenance while validators independently re-fetch and validate the security outcome.
+Each scan stores an SHA-256 evidence hash. Text scans bind directly to the exact submitted text. URL scans require validators to independently re-fetch exactly matching rendered-text evidence hashes as well as validate the security outcome.
 
-Each scan also stores `scanned_at` and `expires_at`. An ALLOW decision is usable for one hour only. Expired ALLOW decisions fail closed: `is_allowed` becomes false and `get_effective_action` returns REVIEW.
+Each scan also stores `scanned_at` and `expires_at`. An ALLOW decision is usable for one hour only. Expired ALLOW decisions fail closed: `is_allowed` becomes false and both `get_action` and `get_effective_action` return REVIEW.
 
 If public URL rendering fails, InputShield returns a zero-confidence REVIEW result instead of treating missing evidence as safe.
 
