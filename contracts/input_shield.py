@@ -207,6 +207,14 @@ Definitions:
             int(check["confidence"]),
         )
 
+        # If URL source snapshots diverge, consensus must not validate an
+        # action against evidence different from the leader's evidence.
+        # TEXT classifications have no retrieval hash in their nondet result.
+        lead_hash = str(lead.get("evidence_hash", ""))
+        check_hash = str(check.get("evidence_hash", ""))
+        if lead_hash != check_hash:
+            return False
+
         return (
             str(lead.get("action", "")) == lead_action
             and lead_action == check_action
@@ -342,30 +350,40 @@ Definitions:
             raise gl.vm.UserError("Scan not found")
         return self.scans[scan_id]
 
+    def _current_action(
+        self, recorded_action: str, expires_at: int, now: int
+    ) -> str:
+        # Historical ALLOW must never bypass its expiry from any decision API.
+        if int(now) > int(expires_at):
+            return "REVIEW"
+        return str(recorded_action)
+
     @gl.public.view
     def get_action(self, scan_id: str) -> str:
         if scan_id not in self.scans:
             raise gl.vm.UserError("Scan not found")
-        return self.scans[scan_id].action
+        record = self.scans[scan_id]
+        return self._current_action(
+            record.action, int(record.expires_at), self._now()
+        )
 
     @gl.public.view
     def is_allowed(self, scan_id: str) -> bool:
         if scan_id not in self.scans:
             raise gl.vm.UserError("Scan not found")
         record = self.scans[scan_id]
-        return (
-            record.action == "ALLOW"
-            and self._now() <= int(record.expires_at)
-        )
+        return self._current_action(
+            record.action, int(record.expires_at), self._now()
+        ) == "ALLOW"
 
     @gl.public.view
     def get_effective_action(self, scan_id: str) -> str:
         if scan_id not in self.scans:
             raise gl.vm.UserError("Scan not found")
         record = self.scans[scan_id]
-        if self._now() > int(record.expires_at):
-            return "REVIEW"
-        return record.action
+        return self._current_action(
+            record.action, int(record.expires_at), self._now()
+        )
 
     @gl.public.view
     def get_policy_version(self) -> str:
