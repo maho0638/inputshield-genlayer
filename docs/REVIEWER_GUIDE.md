@@ -11,7 +11,10 @@
    - look specifically at the threshold-crossing tests;
    - a 69 -> 71 risk-score change must fail validation;
    - a 61 -> 59 confidence change must fail if it changes ALLOW -> REVIEW;
-   - numeric drift is accepted only when the final action remains unchanged.
+   - numeric drift is accepted only when the final action remains unchanged;
+   - tampered leader action fields are rejected;
+   - evidence hashes and one-hour expiry metadata are stored;
+   - source-unavailable results fail closed to REVIEW.
 
 3. `tests/integration/test_inputshield_studionet.py`
    - deploys the contract;
