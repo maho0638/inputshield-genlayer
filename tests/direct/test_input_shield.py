@@ -34,7 +34,10 @@ def test_safe_text_is_allowed(direct_vm, direct_deploy, direct_alice):
     assert int(result.suspicious) == 0
     assert int(result.high_impact) == 0
     assert int(result.risk_score) == 8
+    assert len(result.evidence_hash) == 64
+    assert int(result.expires_at) - int(result.scanned_at) == 3600
     assert c.is_allowed("safe-1") is True
+    assert c.get_effective_action("safe-1") == "ALLOW"
 
 
 def test_high_impact_secret_request_is_blocked(direct_vm, direct_deploy, direct_alice):
@@ -160,6 +163,8 @@ def test_url_scan_uses_web_content(direct_vm, direct_deploy, direct_alice):
     result = c.get_scan("web-block")
     assert result.source_kind == "URL"
     assert result.action == "BLOCK"
+    assert len(result.evidence_hash) == 64
+    assert int(result.expires_at) - int(result.scanned_at) == 3600
 
 
 def test_validator_rejects_risk_threshold_crossing(direct_vm, direct_deploy, direct_alice):
@@ -258,3 +263,47 @@ def test_validator_rejects_high_impact_disagreement(direct_vm, direct_deploy, di
 def test_policy_version_is_explicit(direct_vm, direct_deploy):
     c = direct_deploy("contracts/input_shield.py")
     assert c.get_policy_version() == "inputshield-v1"
+
+
+def test_unavailable_source_result_fails_closed_to_review(direct_vm, direct_deploy):
+    c = direct_deploy("contracts/input_shield.py")
+    result = c._source_unavailable_result()
+    assert result["action"] == "REVIEW"
+    assert result["confidence"] == 0
+    assert result["evidence_hash"] == ""
+
+
+def test_validator_rejects_tampered_leader_action(direct_vm, direct_deploy, direct_alice):
+    c = direct_deploy("contracts/input_shield.py")
+    direct_vm.sender = direct_alice
+    _mock(direct_vm, {
+        "suspicious": False,
+        "high_impact": False,
+        "risk_score": 5,
+        "confidence": 95,
+        "rationale": "Benign.",
+    })
+    c.scan_text("tampered-action", "label", "Benign content.")
+
+    # Simulate a leader payload whose structured fields imply ALLOW but whose
+    # declared action was tampered to BLOCK. Validator must reject it.
+    leader = {
+        "action": "BLOCK",
+        "suspicious": False,
+        "high_impact": False,
+        "risk_score": 5,
+        "confidence": 95,
+    }
+    check = {
+        "action": "ALLOW",
+        "suspicious": False,
+        "high_impact": False,
+        "risk_score": 5,
+        "confidence": 95,
+    }
+    assert c._validator_accepts(leader, check) is False
+
+
+def test_high_impact_blocks_even_at_zero_confidence(direct_vm, direct_deploy):
+    c = direct_deploy("contracts/input_shield.py")
+    assert c._derive_action(True, True, 0, 0) == "BLOCK"
