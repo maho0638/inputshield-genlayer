@@ -23,7 +23,7 @@ A deterministic smart contract cannot reliably classify semantic prompt-injectio
 - `gl.vm.run_nondet_unsafe` so validators independently re-run the classification;
 - deterministic enforcement logic that maps accepted structured signals into **ALLOW / REVIEW / BLOCK**.
 
-The validator never trusts the leader's formatting alone. It independently classifies the same input and verifies the security-critical fields.
+The validator never trusts the leader's formatting alone. It independently classifies the same input and verifies the security-critical fields. URL scans additionally require exact equality of the rendered evidence hash between leader and validators.
 
 ## Equivalence design
 
@@ -48,7 +48,7 @@ This explicitly prevents the classic threshold bug where, for example, one node 
 
 ## Evidence binding and freshness
 
-Every stored scan includes an SHA-256 evidence hash plus deterministic transaction timestamps. ALLOW records expire after one hour; after expiry, `is_allowed` returns false and `get_effective_action` returns REVIEW. URL retrieval failures also resolve fail-closed to REVIEW rather than silently becoming trusted.
+Every stored scan includes an SHA-256 evidence hash plus deterministic transaction timestamps. ALLOW records expire after one hour; after expiry, `is_allowed` returns false and both `get_action` and `get_effective_action` return REVIEW. URL retrieval failures also resolve fail-closed to REVIEW rather than silently becoming trusted.
 
 Untrusted evidence is JSON-encoded before insertion into the security prompt so fake delimiter text inside the payload cannot escape the evidence boundary.
 
@@ -99,17 +99,17 @@ See [SECURITY.md](SECURITY.md) for scope and limitations.
 
 ## Live Studionet proof
 
-Verified on commit `aee50fcdb19f4e24af5c23fbcea1f14de313b1a6`.
+Verified on commit `126305282f53c3d629a7d4679095ee0845f41804`.
 
-- Contract: `0xEe0c544Dc9a1657740bAaeD9705c920ad0A62e93`
-- Explorer: https://explorer-studio.genlayer.com/address/0xEe0c544Dc9a1657740bAaeD9705c920ad0A62e93
-- Benign scan tx: https://explorer-studio.genlayer.com/tx/0x850a8f1b6170aa112546e8bc5755784bea8494a604ae73f2c007300d8675adfe
-- Benign result: `ALLOW`, risk score `0`, confidence `99`
-- Injection scan tx: https://explorer-studio.genlayer.com/tx/0xa8154f152e06059d06601f439990253df7f59a5704f733e71d41b6af555be22d
-- Injection result: `BLOCK`, high-impact `1`, risk score `99`
-- CI: https://github.com/maho0638/inputshield-genlayer/actions/runs/37728828887
-- Studionet proof: https://github.com/maho0638/inputshield-genlayer/actions/runs/37728828915
-- Direct tests: **17 / 17 PASS**
+- Contract: `0x2450bd6D294C9DE72ec2CA6f924C15fca7f9A116`
+- Explorer: https://explorer-studio.genlayer.com/address/0x2450bd6D294C9DE72ec2CA6f924C15fca7f9A116
+- Benign scan tx: https://explorer-studio.genlayer.com/tx/0x462040fdefeb25d265090259a8d69119887c015f834786b27bdf2230d37574fd
+- Benign result: `ALLOW`, risk score `0`, confidence `98`
+- Injection scan tx: https://explorer-studio.genlayer.com/tx/0xb25a1694301389f4374591c98eaaca81447eb5665da29413e74577176260a07a
+- Injection result: `BLOCK`, high-impact `1`, risk score `100`
+- CI: https://github.com/maho0638/inputshield-genlayer/actions/runs/37730228366
+- Studionet proof: https://github.com/maho0638/inputshield-genlayer/actions/runs/37730228386
+- Direct tests: **19 / 19 PASS**
 - GenVM lint: **PASS**
 
 ## Verification
