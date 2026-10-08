@@ -46,6 +46,12 @@ A validator accepts only when:
 
 This explicitly prevents the classic threshold bug where, for example, one node scores 69 (**REVIEW**) and another 71 (**BLOCK**) yet numeric tolerance incorrectly treats them as equivalent.
 
+## Evidence binding and freshness
+
+Every stored scan includes an SHA-256 evidence hash plus deterministic transaction timestamps. ALLOW records expire after one hour; after expiry, `is_allowed` returns false and `get_effective_action` returns REVIEW. URL retrieval failures also resolve fail-closed to REVIEW rather than silently becoming trusted.
+
+Untrusted evidence is JSON-encoded before insertion into the security prompt so fake delimiter text inside the payload cannot escape the evidence boundary.
+
 ## Fail-closed policy
 
 - High-impact requests are always **BLOCK**.
@@ -93,17 +99,17 @@ See [SECURITY.md](SECURITY.md) for scope and limitations.
 
 ## Live Studionet proof
 
-Verified on commit `c0183412e94e0d133e41ce3b045864d0ddb3640d`.
+Verified on commit `aee50fcdb19f4e24af5c23fbcea1f14de313b1a6`.
 
-- Contract: `0xc2d1A30CDA9ad1688a3739dB72C60cEe55FDBb87`
-- Explorer: https://explorer-studio.genlayer.com/address/0xc2d1A30CDA9ad1688a3739dB72C60cEe55FDBb87
-- Benign scan tx: https://explorer-studio.genlayer.com/tx/0xb476004ed7ee5ad6ad9e881b9fb5bc0088d9f60784eab29b9dab4de05a401dc2
-- Benign result: `ALLOW`, risk score `0`, confidence `98`
-- Injection scan tx: https://explorer-studio.genlayer.com/tx/0x2c4397c533377bebad67ecf6d091c6d68cbbdc5dd80c0577251a61e4a59d98d8
-- Injection result: `BLOCK`, high-impact `1`, risk score `95`
-- CI: https://github.com/maho0638/inputshield-genlayer/actions/runs/37694677972
-- Studionet proof: https://github.com/maho0638/inputshield-genlayer/actions/runs/37694678128
-- Direct tests: **14 / 14 PASS**
+- Contract: `0xEe0c544Dc9a1657740bAaeD9705c920ad0A62e93`
+- Explorer: https://explorer-studio.genlayer.com/address/0xEe0c544Dc9a1657740bAaeD9705c920ad0A62e93
+- Benign scan tx: https://explorer-studio.genlayer.com/tx/0x850a8f1b6170aa112546e8bc5755784bea8494a604ae73f2c007300d8675adfe
+- Benign result: `ALLOW`, risk score `0`, confidence `99`
+- Injection scan tx: https://explorer-studio.genlayer.com/tx/0xa8154f152e06059d06601f439990253df7f59a5704f733e71d41b6af555be22d
+- Injection result: `BLOCK`, high-impact `1`, risk score `99`
+- CI: https://github.com/maho0638/inputshield-genlayer/actions/runs/37728828887
+- Studionet proof: https://github.com/maho0638/inputshield-genlayer/actions/runs/37728828915
+- Direct tests: **17 / 17 PASS**
 - GenVM lint: **PASS**
 
 ## Verification
